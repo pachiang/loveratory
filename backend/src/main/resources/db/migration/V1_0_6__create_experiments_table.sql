@@ -1,0 +1,21 @@
+CREATE TABLE experiments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_id UUID NOT NULL,
+    name VARCHAR(200) NOT NULL,
+    description TEXT,
+    location VARCHAR(500),
+    duration_minutes INTEGER NOT NULL,
+    max_participants_per_slot INTEGER NOT NULL DEFAULT 1,
+    slug VARCHAR(200) NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    allow_duplicate_email BOOLEAN NOT NULL DEFAULT false,
+    allow_participant_cancel BOOLEAN NOT NULL DEFAULT true,
+    form_config JSONB,
+    notification_config JSONB,
+    created_by UUID NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT uk_experiments_slug UNIQUE (slug),
+    CONSTRAINT fk_experiments_project FOREIGN KEY (project_id) REFERENCES projects(id),
+    CONSTRAINT fk_experiments_created_by FOREIGN KEY (created_by) REFERENCES users(id)
+);
