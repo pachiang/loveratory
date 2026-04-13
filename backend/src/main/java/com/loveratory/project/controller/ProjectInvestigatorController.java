@@ -27,7 +27,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/projects/{projectId}/investigators")
+@RequestMapping("/api/v1/projects/{projectId}/investigators")
 @Tag(name = "專案主持人管理", description = "專案主持人查詢、新增與移除")
 public class ProjectInvestigatorController {
 

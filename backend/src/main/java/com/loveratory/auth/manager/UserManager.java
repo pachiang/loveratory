@@ -1,6 +1,7 @@
 package com.loveratory.auth.manager;
 
 import com.loveratory.auth.entity.UserEntity;
+import com.loveratory.auth.entity.UserRole;
 import com.loveratory.auth.repository.UserRepository;
 import com.loveratory.common.exception.BusinessException;
 import com.loveratory.common.exception.ErrorCode;
@@ -52,6 +53,10 @@ public class UserManager {
      */
     public boolean existsByEmail(@NonNull String email) {
         return userRepository.existsByEmail(email);
+    }
+
+    public boolean existsByRole(@NonNull UserRole role) {
+        return userRepository.existsByRole(role);
     }
 
     /**

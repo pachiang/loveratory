@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/public")
+@RequestMapping("/api/v1/public")
 @Tag(name = "受試者報名（公開）", description = "受試者實驗查詢、報名與取消（免登入）")
 public class PublicExperimentController {
 

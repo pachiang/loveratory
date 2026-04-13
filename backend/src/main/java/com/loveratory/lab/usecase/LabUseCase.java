@@ -7,10 +7,12 @@ import com.loveratory.common.exception.BusinessException;
 import com.loveratory.common.exception.ErrorCode;
 import com.loveratory.common.util.SecurityUtil;
 import com.loveratory.lab.dto.request.LabCreateRequest;
+import com.loveratory.lab.dto.request.LabUpdateRequest;
 import com.loveratory.lab.dto.response.LabDetailResponse;
 import com.loveratory.lab.dto.response.LabSummaryResponse;
 import com.loveratory.lab.entity.LabEntity;
 import com.loveratory.lab.entity.LabMemberEntity;
+import com.loveratory.lab.entity.LabMemberRole;
 import com.loveratory.lab.entity.LabStatus;
 import com.loveratory.lab.manager.LabManager;
 import com.loveratory.lab.manager.LabMemberManager;
@@ -20,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -112,12 +115,21 @@ public class LabUseCase {
     public List<LabSummaryResponse> findMyLabs() {
         UUID currentUserId = SecurityUtil.getCurrentUserId();
         List<LabMemberEntity> memberships = labMemberManager.findLabsByUserId(currentUserId);
-
-        return memberships.stream()
+        List<LabSummaryResponse> membershipLabs = memberships.stream()
                 .map(membership -> {
                     LabEntity labEntity = labManager.findByIdOrThrow(membership.getLabId());
                     return LabSummaryResponse.of(labEntity, membership.getRole());
                 })
+                .toList();
+
+        List<LabSummaryResponse> appliedLabs = labManager.findByAppliedBy(currentUserId).stream()
+                .filter(labEntity -> memberships.stream()
+                        .noneMatch(membership -> membership.getLabId().equals(labEntity.getId())))
+                .map(LabSummaryResponse::of)
+                .toList();
+
+        return java.util.stream.Stream.concat(membershipLabs.stream(), appliedLabs.stream())
+                .sorted(Comparator.comparing(LabSummaryResponse::getCreatedAt).reversed())
                 .toList();
     }
 
@@ -143,5 +155,33 @@ public class LabUseCase {
 
         UserEntity applicant = userManager.findByIdOrThrow(labEntity.getAppliedBy());
         return LabDetailResponse.fromEntity(labEntity, applicant.getName());
+    }
+
+    /**
+     * 更新實驗室資訊。
+     * 僅限啟用中的實驗室管理員操作。
+     *
+     * @param labId 實驗室 ID
+     * @param request 更新實驗室請求
+     * @return 實驗室詳情回應
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public LabDetailResponse updateLab(@NonNull UUID labId, @NonNull LabUpdateRequest request) {
+        LabEntity labEntity = labManager.findByIdOrThrow(labId);
+        verifyActiveLabAdmin(labId);
+        labEntity.setName(request.getName());
+        labEntity.setDescription(request.getDescription());
+
+        LabEntity savedLabEntity = labManager.save(labEntity);
+        UserEntity applicant = userManager.findByIdOrThrow(savedLabEntity.getAppliedBy());
+        return LabDetailResponse.fromEntity(savedLabEntity, applicant.getName());
+    }
+
+    private void verifyActiveLabAdmin(UUID labId) {
+        UUID currentUserId = SecurityUtil.getCurrentUserId();
+        LabMemberEntity member = labMemberManager.findActiveByLabIdAndUserIdOrThrow(labId, currentUserId);
+        if (member.getRole() != LabMemberRole.LAB_ADMIN) {
+            throw new BusinessException(ErrorCode.NOT_LAB_ADMIN);
+        }
     }
 }

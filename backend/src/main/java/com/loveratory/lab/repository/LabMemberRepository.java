@@ -24,6 +24,8 @@ public interface LabMemberRepository extends JpaRepository<LabMemberEntity, UUID
      */
     Optional<LabMemberEntity> findByLabIdAndUserId(UUID labId, UUID userId);
 
+    Optional<LabMemberEntity> findByLabIdAndUserIdAndStatus(UUID labId, UUID userId, LabMemberStatus status);
+
     /**
      * 根據實驗室 ID 與狀態查詢成員列表。
      *

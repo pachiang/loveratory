@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -31,6 +32,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api/v1")
 @Tag(name = "實驗管理", description = "實驗建立、查詢、更新與設定管理")
 public class ExperimentController {
 
@@ -44,7 +46,7 @@ public class ExperimentController {
      * @return 實驗詳情回應
      */
     @Operation(summary = "建立實驗", description = "在指定專案下建立新實驗，狀態為 DRAFT")
-    @PostMapping("/api/projects/{projectId}/experiments")
+    @PostMapping("/projects/{projectId}/experiments")
     public ExperimentDetailResponse createExperiment(
             @Parameter(description = "專案 ID") @PathVariable UUID projectId,
             @Valid @RequestBody ExperimentCreateRequest request) {
@@ -59,7 +61,7 @@ public class ExperimentController {
      * @return 實驗摘要列表
      */
     @Operation(summary = "查詢實驗列表", description = "列出指定專案下的所有實驗")
-    @GetMapping("/api/projects/{projectId}/experiments")
+    @GetMapping("/projects/{projectId}/experiments")
     public List<ExperimentSummaryResponse> findExperiments(
             @Parameter(description = "專案 ID") @PathVariable UUID projectId) {
         log.info("查詢實驗列表，projectId: {}", projectId);
@@ -73,7 +75,7 @@ public class ExperimentController {
      * @return 實驗詳情回應
      */
     @Operation(summary = "查詢實驗詳情", description = "根據實驗 ID 查詢完整資訊")
-    @GetMapping("/api/experiments/{experimentId}")
+    @GetMapping("/experiments/{experimentId}")
     public ExperimentDetailResponse findExperimentDetail(
             @Parameter(description = "實驗 ID") @PathVariable UUID experimentId) {
         log.info("查詢實驗詳情，experimentId: {}", experimentId);
@@ -88,7 +90,7 @@ public class ExperimentController {
      * @return 實驗詳情回應
      */
     @Operation(summary = "更新實驗", description = "更新實驗基本資訊")
-    @PutMapping("/api/experiments/{experimentId}")
+    @PutMapping("/experiments/{experimentId}")
     public ExperimentDetailResponse updateExperiment(
             @Parameter(description = "實驗 ID") @PathVariable UUID experimentId,
             @Valid @RequestBody ExperimentUpdateRequest request) {
@@ -104,7 +106,7 @@ public class ExperimentController {
      * @return 實驗詳情回應
      */
     @Operation(summary = "更新實驗狀態", description = "變更實驗狀態（DRAFT / OPEN / CLOSED / ARCHIVED）")
-    @PutMapping("/api/experiments/{experimentId}/status")
+    @PutMapping("/experiments/{experimentId}/status")
     public ExperimentDetailResponse updateExperimentStatus(
             @Parameter(description = "實驗 ID") @PathVariable UUID experimentId,
             @Valid @RequestBody ExperimentStatusUpdateRequest request) {
@@ -120,7 +122,7 @@ public class ExperimentController {
      * @return 實驗詳情回應
      */
     @Operation(summary = "更新報名表單設定", description = "更新實驗的報名表單欄位設定（Email 欄位不可關閉）")
-    @PutMapping("/api/experiments/{experimentId}/form-config")
+    @PutMapping("/experiments/{experimentId}/form-config")
     public ExperimentDetailResponse updateFormConfig(
             @Parameter(description = "實驗 ID") @PathVariable UUID experimentId,
             @Valid @RequestBody FormConfig formConfig) {
@@ -136,7 +138,7 @@ public class ExperimentController {
      * @return 實驗詳情回應
      */
     @Operation(summary = "更新通知設定", description = "更新實驗的通知設定")
-    @PutMapping("/api/experiments/{experimentId}/notification-config")
+    @PutMapping("/experiments/{experimentId}/notification-config")
     public ExperimentDetailResponse updateNotificationConfig(
             @Parameter(description = "實驗 ID") @PathVariable UUID experimentId,
             @Valid @RequestBody NotificationConfig notificationConfig) {

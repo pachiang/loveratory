@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api/v1")
 @Tag(name = "專案管理", description = "專案建立、查詢、更新與封存")
 public class ProjectController {
 
@@ -42,7 +44,7 @@ public class ProjectController {
      * @return 專案詳情回應
      */
     @Operation(summary = "建立專案", description = "在指定實驗室下建立新專案，狀態為 DRAFT")
-    @PostMapping("/api/labs/{labId}/projects")
+    @PostMapping("/labs/{labId}/projects")
     public ProjectDetailResponse createProject(
             @Parameter(description = "實驗室 ID") @PathVariable UUID labId,
             @Valid @RequestBody ProjectCreateRequest request) {
@@ -57,7 +59,7 @@ public class ProjectController {
      * @return 專案摘要列表
      */
     @Operation(summary = "查詢專案列表", description = "查詢實驗室下的專案列表，LAB_ADMIN 可看全部，一般成員只看自己主持的")
-    @GetMapping("/api/labs/{labId}/projects")
+    @GetMapping("/labs/{labId}/projects")
     public List<ProjectSummaryResponse> findProjects(
             @Parameter(description = "實驗室 ID") @PathVariable UUID labId) {
         log.info("查詢專案列表，labId: {}", labId);
@@ -71,7 +73,7 @@ public class ProjectController {
      * @return 專案詳情回應
      */
     @Operation(summary = "查詢專案詳情", description = "根據專案 ID 查詢完整資訊與主持人列表")
-    @GetMapping("/api/projects/{projectId}")
+    @GetMapping("/projects/{projectId}")
     public ProjectDetailResponse findProjectDetail(
             @Parameter(description = "專案 ID") @PathVariable UUID projectId) {
         log.info("查詢專案詳情，projectId: {}", projectId);
@@ -86,7 +88,7 @@ public class ProjectController {
      * @return 專案詳情回應
      */
     @Operation(summary = "更新專案", description = "更新專案名稱、描述與狀態")
-    @PutMapping("/api/projects/{projectId}")
+    @PutMapping("/projects/{projectId}")
     public ProjectDetailResponse updateProject(
             @Parameter(description = "專案 ID") @PathVariable UUID projectId,
             @Valid @RequestBody ProjectUpdateRequest request) {
@@ -100,7 +102,7 @@ public class ProjectController {
      * @param projectId 專案 ID
      */
     @Operation(summary = "封存專案", description = "將專案狀態設為 ARCHIVED")
-    @DeleteMapping("/api/projects/{projectId}")
+    @DeleteMapping("/projects/{projectId}")
     public void archiveProject(
             @Parameter(description = "專案 ID") @PathVariable UUID projectId) {
         log.info("封存專案，projectId: {}", projectId);

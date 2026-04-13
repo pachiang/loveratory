@@ -22,6 +22,10 @@ public class LabInvitationResponse {
     @Schema(description = "邀請 ID")
     private final UUID invitationId;
 
+    private final UUID labId;
+
+    private final String labName;
+
     @Schema(description = "被邀請者 Email")
     private final String email;
 
@@ -51,9 +55,12 @@ public class LabInvitationResponse {
      * @return 實驗室邀請回應
      */
     public static LabInvitationResponse of(@NonNull LabInvitationEntity entity,
-                                           @NonNull String invitedByName) {
+                                           @NonNull String invitedByName,
+                                           @NonNull String labName) {
         return LabInvitationResponse.builder()
                 .invitationId(entity.getId())
+                .labId(entity.getLabId())
+                .labName(labName)
                 .email(entity.getEmail())
                 .status(entity.getStatus())
                 .invitedBy(entity.getInvitedBy())

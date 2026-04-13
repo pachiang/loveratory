@@ -96,7 +96,7 @@ public class LabMemberUseCase {
      */
     private LabMemberEntity verifyLabAdmin(UUID labId) {
         UUID currentUserId = SecurityUtil.getCurrentUserId();
-        LabMemberEntity member = labMemberManager.findByLabIdAndUserIdOrThrow(labId, currentUserId);
+        LabMemberEntity member = labMemberManager.findActiveByLabIdAndUserIdOrThrow(labId, currentUserId);
         if (member.getRole() != LabMemberRole.LAB_ADMIN) {
             throw new BusinessException(ErrorCode.NOT_LAB_ADMIN);
         }

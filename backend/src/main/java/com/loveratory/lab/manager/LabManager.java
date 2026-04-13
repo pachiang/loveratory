@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -45,6 +46,10 @@ public class LabManager {
      */
     public Optional<LabEntity> findByCode(@NonNull String code) {
         return labRepository.findByCode(code);
+    }
+
+    public List<LabEntity> findByAppliedBy(@NonNull UUID appliedBy) {
+        return labRepository.findByAppliedByOrderByCreatedAtDesc(appliedBy);
     }
 
     /**

@@ -27,7 +27,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/labs/{labId}/members")
+@RequestMapping("/api/v1/labs/{labId}/members")
 @Tag(name = "實驗室成員管理", description = "成員查詢、角色變更與移除")
 public class LabMemberController {
 

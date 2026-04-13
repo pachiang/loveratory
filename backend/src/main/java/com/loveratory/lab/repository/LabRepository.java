@@ -4,6 +4,7 @@ import com.loveratory.lab.entity.LabEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -20,6 +21,8 @@ public interface LabRepository extends JpaRepository<LabEntity, UUID>,
      * @return 實驗室 Optional
      */
     Optional<LabEntity> findByCode(String code);
+
+    List<LabEntity> findByAppliedByOrderByCreatedAtDesc(UUID appliedBy);
 
     /**
      * 檢查實驗室代碼是否已存在。

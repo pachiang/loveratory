@@ -29,7 +29,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/admin/labs")
+@RequestMapping("/api/v1/admin/labs")
 @Tag(name = "系統管理 - 實驗室審核", description = "實驗室申請審核與管理")
 public class AdminLabController {
 

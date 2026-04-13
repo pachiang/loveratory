@@ -50,6 +50,12 @@ public class LabMemberManager {
                 .orElseThrow(() -> new BusinessException(ErrorCode.LAB_MEMBER_NOT_FOUND));
     }
 
+    public LabMemberEntity findActiveByLabIdAndUserIdOrThrow(@NonNull UUID labId,
+                                                             @NonNull UUID userId) {
+        return labMemberRepository.findByLabIdAndUserIdAndStatus(labId, userId, LabMemberStatus.ACTIVE)
+                .orElseThrow(() -> new BusinessException(ErrorCode.LAB_MEMBER_NOT_FOUND));
+    }
+
     /**
      * 查詢實驗室的所有啟用中成員。
      *

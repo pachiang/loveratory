@@ -143,7 +143,7 @@ public class ProjectInvestigatorUseCase {
         boolean isInvestigator = projectInvestigatorManager.existsActiveInvestigator(project.getId(), userId);
         if (!isInvestigator) {
             // 檢查是否為 LAB_ADMIN
-            var membership = labMemberManager.findByLabIdAndUserIdOrThrow(
+            var membership = labMemberManager.findActiveByLabIdAndUserIdOrThrow(
                     project.getLabId(), userId);
             if (membership.getRole() != LabMemberRole.LAB_ADMIN) {
                 throw new BusinessException(ErrorCode.NOT_PROJECT_INVESTIGATOR);

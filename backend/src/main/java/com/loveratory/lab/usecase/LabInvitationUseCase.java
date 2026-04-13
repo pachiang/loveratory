@@ -1,11 +1,17 @@
 package com.loveratory.lab.usecase;
 
+import com.loveratory.auth.dto.request.UserLoginRequest;
+import com.loveratory.auth.dto.request.UserRegisterRequest;
+import com.loveratory.auth.dto.response.UserLoginResponse;
 import com.loveratory.auth.entity.UserEntity;
+import com.loveratory.auth.entity.UserRole;
 import com.loveratory.auth.manager.UserManager;
+import com.loveratory.auth.service.AuthenticationService;
 import com.loveratory.common.exception.BusinessException;
 import com.loveratory.common.exception.ErrorCode;
 import com.loveratory.common.util.SecurityUtil;
 import com.loveratory.lab.dto.request.LabInvitationCreateRequest;
+import com.loveratory.lab.dto.response.InvitationAccessResponse;
 import com.loveratory.lab.dto.response.LabInvitationResponse;
 import com.loveratory.lab.entity.LabEntity;
 import com.loveratory.lab.entity.LabInvitationEntity;
@@ -16,6 +22,7 @@ import com.loveratory.lab.entity.LabMemberStatus;
 import com.loveratory.lab.manager.LabInvitationManager;
 import com.loveratory.lab.manager.LabManager;
 import com.loveratory.lab.manager.LabMemberManager;
+import com.loveratory.lab.service.LabInvitationEmailService;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,6 +47,8 @@ public class LabInvitationUseCase {
     private final LabMemberManager labMemberManager;
     private final LabManager labManager;
     private final UserManager userManager;
+    private final LabInvitationEmailService labInvitationEmailService;
+    private final AuthenticationService authenticationService;
 
     /**
      * 建立實驗室邀請。
@@ -75,8 +84,10 @@ public class LabInvitationUseCase {
 
         LabInvitationEntity savedInvitationEntity = labInvitationManager.save(invitationEntity);
 
+        LabEntity lab = labManager.findByIdOrThrow(labId);
         UserEntity inviter = userManager.findByIdOrThrow(currentMember.getUserId());
-        return LabInvitationResponse.of(savedInvitationEntity, inviter.getName());
+        labInvitationEmailService.sendInvitationEmail(savedInvitationEntity, lab, inviter);
+        return toInvitationResponse(savedInvitationEntity, inviter);
     }
 
     /**
@@ -95,7 +106,7 @@ public class LabInvitationUseCase {
         return invitations.stream()
                 .map(invitationEntity -> {
                     UserEntity inviter = userManager.findByIdOrThrow(invitationEntity.getInvitedBy());
-                    return LabInvitationResponse.of(invitationEntity, inviter.getName());
+                    return toInvitationResponse(invitationEntity, inviter);
                 })
                 .toList();
     }
@@ -111,15 +122,10 @@ public class LabInvitationUseCase {
     public void revokeInvitation(@NonNull UUID labId, @NonNull UUID invitationId) {
         verifyLabAdmin(labId);
 
-        LabInvitationEntity invitationEntity = labInvitationManager
-                .findByToken(invitationId.toString())
-                .orElseGet(() -> {
-                    // 嘗試以 ID 查找
-                    return labInvitationManager.findByLabId(labId).stream()
-                            .filter(invitation -> invitation.getId().equals(invitationId))
-                            .findFirst()
-                            .orElseThrow(() -> new BusinessException(ErrorCode.INVITATION_NOT_FOUND));
-                });
+        LabInvitationEntity invitationEntity = labInvitationManager.findByIdOrThrow(invitationId);
+        if (!invitationEntity.getLabId().equals(labId)) {
+            throw new BusinessException(ErrorCode.INVITATION_NOT_FOUND);
+        }
 
         invitationEntity.setStatus(LabInvitationStatus.EXPIRED);
         labInvitationManager.save(invitationEntity);
@@ -136,17 +142,83 @@ public class LabInvitationUseCase {
     public LabInvitationResponse findInvitationByToken(@NonNull String token) {
         LabInvitationEntity invitationEntity = labInvitationManager.findByTokenOrThrow(token);
         UserEntity inviter = userManager.findByIdOrThrow(invitationEntity.getInvitedBy());
-        return LabInvitationResponse.of(invitationEntity, inviter.getName());
+        return toInvitationResponse(invitationEntity, inviter);
     }
 
     /**
-     * 接受實驗室邀請。
-     * 需要使用者已登入。檢查邀請狀態與有效期，加入成員並更新邀請狀態。
+     * 已登入使用者接受邀請。
      *
      * @param token 邀請 Token
+     * @return 邀請回應
      */
     @Transactional(rollbackFor = Exception.class)
-    public void acceptInvitation(@NonNull String token) {
+    public LabInvitationResponse acceptInvitationForCurrentUser(@NonNull String token) {
+        UUID currentUserId = SecurityUtil.getCurrentUserId();
+        UserEntity currentUser = userManager.findByIdOrThrow(currentUserId);
+        return acceptInvitationInternal(loadPendingInvitation(token), currentUser);
+    }
+
+    /**
+     * 註冊新帳號並接受邀請。
+     *
+     * @param token   邀請 Token
+     * @param request 註冊請求
+     * @return 包含認證資訊與邀請結果的回應
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public InvitationAccessResponse registerAndAcceptInvitation(@NonNull String token,
+                                                                @NonNull UserRegisterRequest request) {
+        LabInvitationEntity invitationEntity = loadPendingInvitation(token);
+        ensureInvitationEmailMatches(invitationEntity, request.getEmail());
+
+        UserEntity registeredUser = authenticationService.createUser(request, UserRole.USER);
+        UserLoginResponse auth = authenticationService.issueTokens(registeredUser);
+        LabInvitationResponse invitation = acceptInvitationInternal(invitationEntity, registeredUser);
+        return InvitationAccessResponse.of(auth, invitation);
+    }
+
+    /**
+     * 登入既有帳號並接受邀請。
+     *
+     * @param token   邀請 Token
+     * @param request 登入請求
+     * @return 包含認證資訊與邀請結果的回應
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public InvitationAccessResponse loginAndAcceptInvitation(@NonNull String token,
+                                                             @NonNull UserLoginRequest request) {
+        LabInvitationEntity invitationEntity = loadPendingInvitation(token);
+        ensureInvitationEmailMatches(invitationEntity, request.getEmail());
+
+        UserEntity userEntity = authenticationService.authenticate(request);
+        UserLoginResponse auth = authenticationService.issueTokens(userEntity);
+        LabInvitationResponse invitation = acceptInvitationInternal(invitationEntity, userEntity);
+        return InvitationAccessResponse.of(auth, invitation);
+    }
+
+    private LabInvitationResponse acceptInvitationInternal(@NonNull LabInvitationEntity invitationEntity,
+                                                           @NonNull UserEntity currentUser) {
+        ensureInvitationEmailMatches(invitationEntity, currentUser.getEmail());
+
+        if (labMemberManager.existsActiveMember(invitationEntity.getLabId(), currentUser.getId())) {
+            throw new BusinessException(ErrorCode.LAB_MEMBER_ALREADY_EXISTS);
+        }
+
+        LabMemberEntity memberEntity = new LabMemberEntity();
+        memberEntity.setLabId(invitationEntity.getLabId());
+        memberEntity.setUserId(currentUser.getId());
+        memberEntity.setRole(LabMemberRole.LAB_MEMBER);
+        memberEntity.setStatus(LabMemberStatus.ACTIVE);
+        labMemberManager.save(memberEntity);
+
+        invitationEntity.setStatus(LabInvitationStatus.ACCEPTED);
+        invitationEntity.setAcceptedAt(ZonedDateTime.now());
+        LabInvitationEntity savedInvitation = labInvitationManager.save(invitationEntity);
+        UserEntity inviter = userManager.findByIdOrThrow(savedInvitation.getInvitedBy());
+        return toInvitationResponse(savedInvitation, inviter);
+    }
+
+    private LabInvitationEntity loadPendingInvitation(@NonNull String token) {
         LabInvitationEntity invitationEntity = labInvitationManager.findByTokenOrThrow(token);
 
         if (invitationEntity.getStatus() != LabInvitationStatus.PENDING) {
@@ -157,33 +229,25 @@ public class LabInvitationUseCase {
             throw new BusinessException(ErrorCode.INVITATION_EXPIRED);
         }
 
-        UUID currentUserId = SecurityUtil.getCurrentUserId();
-
-        if (labMemberManager.existsActiveMember(invitationEntity.getLabId(), currentUserId)) {
-            throw new BusinessException(ErrorCode.LAB_MEMBER_ALREADY_EXISTS);
-        }
-
-        LabMemberEntity memberEntity = new LabMemberEntity();
-        memberEntity.setLabId(invitationEntity.getLabId());
-        memberEntity.setUserId(currentUserId);
-        memberEntity.setRole(LabMemberRole.LAB_MEMBER);
-        memberEntity.setStatus(LabMemberStatus.ACTIVE);
-        labMemberManager.save(memberEntity);
-
-        invitationEntity.setStatus(LabInvitationStatus.ACCEPTED);
-        invitationEntity.setAcceptedAt(ZonedDateTime.now());
-        labInvitationManager.save(invitationEntity);
+        return invitationEntity;
     }
 
-    /**
-     * 驗證當前使用者為實驗室管理員。
-     *
-     * @param labId 實驗室 ID
-     * @return 當前使用者的成員 Entity
-     */
+    private void ensureInvitationEmailMatches(@NonNull LabInvitationEntity invitationEntity,
+                                              @NonNull String email) {
+        if (!invitationEntity.getEmail().equalsIgnoreCase(email)) {
+            throw new BusinessException(ErrorCode.INVALID_PARAMETER, "Invitation email does not match the account");
+        }
+    }
+
+    private LabInvitationResponse toInvitationResponse(@NonNull LabInvitationEntity invitationEntity,
+                                                       @NonNull UserEntity inviter) {
+        LabEntity lab = labManager.findByIdOrThrow(invitationEntity.getLabId());
+        return LabInvitationResponse.of(invitationEntity, inviter.getName(), lab.getName());
+    }
+
     private LabMemberEntity verifyLabAdmin(UUID labId) {
         UUID currentUserId = SecurityUtil.getCurrentUserId();
-        LabMemberEntity member = labMemberManager.findByLabIdAndUserIdOrThrow(labId, currentUserId);
+        LabMemberEntity member = labMemberManager.findActiveByLabIdAndUserIdOrThrow(labId, currentUserId);
         if (member.getRole() != LabMemberRole.LAB_ADMIN) {
             throw new BusinessException(ErrorCode.NOT_LAB_ADMIN);
         }

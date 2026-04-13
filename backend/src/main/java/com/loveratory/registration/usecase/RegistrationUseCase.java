@@ -16,7 +16,9 @@ import com.loveratory.registration.dto.response.RegistrationResponse;
 import com.loveratory.registration.entity.RegistrationEntity;
 import com.loveratory.registration.entity.RegistrationStatus;
 import com.loveratory.registration.manager.RegistrationManager;
+import com.loveratory.notification.service.RegistrationNotificationService;
 import com.loveratory.slot.entity.TimeSlotEntity;
+import com.loveratory.slot.entity.TimeSlotStatus;
 import com.loveratory.slot.manager.TimeSlotManager;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,7 @@ public class RegistrationUseCase {
     private final ProjectManager projectManager;
     private final ProjectInvestigatorManager projectInvestigatorManager;
     private final LabMemberManager labMemberManager;
+    private final RegistrationNotificationService registrationNotificationService;
 
     /**
      * 查詢實驗的所有報名記錄。
@@ -88,13 +91,44 @@ public class RegistrationUseCase {
         ExperimentEntity experiment = experimentManager.findByIdOrThrow(slot.getExperimentId());
         verifyExperimentInvestigator(experiment);
 
-        registration.setStatus(request.getStatus());
+        RegistrationStatus originalStatus = registration.getStatus();
+        RegistrationStatus targetStatus = request.getStatus();
 
-        if (request.getStatus() == RegistrationStatus.CANCELLED) {
+        if (originalStatus == RegistrationStatus.CONFIRMED && targetStatus == RegistrationStatus.CANCELLED) {
+            slot.setCurrentCount(Math.max(0, slot.getCurrentCount() - 1));
+            if (slot.getStatus() == TimeSlotStatus.FULL && slot.getCurrentCount() < slot.getCapacity()) {
+                slot.setStatus(TimeSlotStatus.AVAILABLE);
+            }
+            timeSlotManager.save(slot);
             registration.setCancelledAt(ZonedDateTime.now());
+        } else if (originalStatus == RegistrationStatus.CANCELLED && targetStatus == RegistrationStatus.CONFIRMED) {
+            if (slot.getCurrentCount() >= slot.getCapacity()) {
+                throw new BusinessException(ErrorCode.SLOT_FULL);
+            }
+            slot.setCurrentCount(slot.getCurrentCount() + 1);
+            if (slot.getCurrentCount() >= slot.getCapacity()) {
+                slot.setStatus(TimeSlotStatus.FULL);
+            } else if (slot.getStatus() != TimeSlotStatus.CANCELLED) {
+                slot.setStatus(TimeSlotStatus.AVAILABLE);
+            }
+            timeSlotManager.save(slot);
+            registration.setCancelledAt(null);
+        } else if (targetStatus != RegistrationStatus.CANCELLED) {
+            registration.setCancelledAt(null);
         }
 
+        registration.setStatus(targetStatus);
         RegistrationEntity savedRegistration = registrationManager.save(registration);
+
+        if (originalStatus == RegistrationStatus.CONFIRMED && targetStatus != RegistrationStatus.CONFIRMED) {
+            registrationNotificationService.disablePendingNotifications(
+                    savedRegistration.getId(),
+                    "Registration status changed to " + targetStatus);
+        } else if (originalStatus != RegistrationStatus.CONFIRMED
+                && targetStatus == RegistrationStatus.CONFIRMED) {
+            registrationNotificationService.scheduleNotifications(savedRegistration, slot, experiment);
+        }
+
         return RegistrationResponse.fromEntity(savedRegistration);
     }
 

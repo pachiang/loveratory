@@ -2,6 +2,7 @@ package com.loveratory.lab.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +12,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.ZonedDateTime;
 import java.util.UUID;
@@ -23,6 +26,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @FieldNameConstants
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "lab_members")
 public class LabMemberEntity {
 
@@ -40,8 +44,9 @@ public class LabMemberEntity {
     @Column(name = "role", nullable = false)
     private LabMemberRole role;
 
+    @CreatedDate
     @Column(name = "joined_at", nullable = false, updatable = false)
-    private ZonedDateTime joinedAt = ZonedDateTime.now();
+    private ZonedDateTime joinedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)

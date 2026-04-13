@@ -1,5 +1,6 @@
 package com.loveratory.auth.usecase;
 
+import com.loveratory.auth.dto.request.BootstrapAdminRequest;
 import com.loveratory.auth.dto.request.TokenRefreshRequest;
 import com.loveratory.auth.dto.request.UserLoginRequest;
 import com.loveratory.auth.dto.request.UserRegisterRequest;
@@ -7,15 +8,17 @@ import com.loveratory.auth.dto.response.UserLoginResponse;
 import com.loveratory.auth.entity.UserEntity;
 import com.loveratory.auth.entity.UserRole;
 import com.loveratory.auth.manager.UserManager;
+import com.loveratory.auth.service.AuthenticationService;
 import com.loveratory.auth.service.JwtTokenService;
 import com.loveratory.common.exception.BusinessException;
 import com.loveratory.common.exception.ErrorCode;
+import com.loveratory.config.BootstrapAdminProperties;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.UUID;
 
@@ -30,7 +33,8 @@ public class AuthUseCase {
 
     private final UserManager userManager;
     private final JwtTokenService jwtTokenService;
-    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationService authenticationService;
+    private final BootstrapAdminProperties bootstrapAdminProperties;
 
     /**
      * 使用者註冊。
@@ -41,23 +45,8 @@ public class AuthUseCase {
      */
     @Transactional(rollbackFor = Exception.class)
     public UserLoginResponse register(@NonNull UserRegisterRequest request) {
-        if (userManager.existsByEmail(request.getEmail())) {
-            throw new BusinessException(ErrorCode.EMAIL_ALREADY_EXISTS);
-        }
-
-        UserEntity userEntity = new UserEntity();
-        userEntity.setEmail(request.getEmail());
-        userEntity.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        userEntity.setName(request.getName());
-        userEntity.setRole(UserRole.USER);
-
-        UserEntity savedUser = userManager.save(userEntity);
-
-        String accessToken = jwtTokenService.generateAccessToken(
-                savedUser.getId(), savedUser.getEmail(), savedUser.getRole());
-        String refreshToken = jwtTokenService.generateRefreshToken(savedUser.getId());
-
-        return UserLoginResponse.fromEntity(savedUser, accessToken, refreshToken);
+        UserEntity savedUser = authenticationService.createUser(request, UserRole.USER);
+        return authenticationService.issueTokens(savedUser);
     }
 
     /**
@@ -69,18 +58,7 @@ public class AuthUseCase {
      */
     @Transactional(readOnly = true)
     public UserLoginResponse login(@NonNull UserLoginRequest request) {
-        UserEntity userEntity = userManager.findByEmail(request.getEmail())
-                .orElseThrow(() -> new BusinessException(ErrorCode.INVALID_CREDENTIALS));
-
-        if (!passwordEncoder.matches(request.getPassword(), userEntity.getPasswordHash())) {
-            throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
-        }
-
-        String accessToken = jwtTokenService.generateAccessToken(
-                userEntity.getId(), userEntity.getEmail(), userEntity.getRole());
-        String refreshToken = jwtTokenService.generateRefreshToken(userEntity.getId());
-
-        return UserLoginResponse.fromEntity(userEntity, accessToken, refreshToken);
+        return authenticationService.issueTokens(authenticationService.authenticate(request));
     }
 
     /**
@@ -96,10 +74,29 @@ public class AuthUseCase {
 
         UserEntity userEntity = userManager.findByIdOrThrow(userId);
 
-        String accessToken = jwtTokenService.generateAccessToken(
-                userEntity.getId(), userEntity.getEmail(), userEntity.getRole());
-        String refreshToken = jwtTokenService.generateRefreshToken(userEntity.getId());
+        return authenticationService.issueTokens(userEntity);
+    }
 
-        return UserLoginResponse.fromEntity(userEntity, accessToken, refreshToken);
+    @Transactional(rollbackFor = Exception.class)
+    public UserLoginResponse bootstrapAdmin(@NonNull BootstrapAdminRequest request) {
+        if (!StringUtils.hasText(bootstrapAdminProperties.secret())) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED, "Admin bootstrap is disabled");
+        }
+
+        if (!bootstrapAdminProperties.secret().equals(request.getBootstrapSecret())) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED, "Bootstrap secret is invalid");
+        }
+
+        if (userManager.existsByRole(UserRole.SYSTEM_ADMIN)) {
+            throw new BusinessException(ErrorCode.INVALID_PARAMETER, "System admin already exists");
+        }
+
+        UserRegisterRequest registerRequest = new UserRegisterRequest();
+        registerRequest.setName(request.getName());
+        registerRequest.setEmail(request.getEmail());
+        registerRequest.setPassword(request.getPassword());
+
+        UserEntity savedUser = authenticationService.createUser(registerRequest, UserRole.SYSTEM_ADMIN);
+        return authenticationService.issueTokens(savedUser);
     }
 }

@@ -98,7 +98,7 @@ public class ProjectUseCase {
     public List<ProjectSummaryResponse> findProjects(@NonNull UUID labId) {
         UUID currentUserId = SecurityUtil.getCurrentUserId();
 
-        LabMemberEntity membership = labMemberManager.findByLabIdAndUserIdOrThrow(labId, currentUserId);
+        LabMemberEntity membership = labMemberManager.findActiveByLabIdAndUserIdOrThrow(labId, currentUserId);
 
         List<ProjectEntity> projects;
 
@@ -187,7 +187,7 @@ public class ProjectUseCase {
         boolean isInvestigator = projectInvestigatorManager.existsActiveInvestigator(project.getId(), userId);
         if (!isInvestigator) {
             // 檢查是否為 LAB_ADMIN
-            LabMemberEntity membership = labMemberManager.findByLabIdAndUserIdOrThrow(
+            LabMemberEntity membership = labMemberManager.findActiveByLabIdAndUserIdOrThrow(
                     project.getLabId(), userId);
             if (membership.getRole() != LabMemberRole.LAB_ADMIN) {
                 throw new BusinessException(ErrorCode.NOT_PROJECT_INVESTIGATOR);

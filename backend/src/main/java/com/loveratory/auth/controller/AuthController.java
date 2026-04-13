@@ -1,5 +1,6 @@
 package com.loveratory.auth.controller;
 
+import com.loveratory.auth.dto.request.BootstrapAdminRequest;
 import com.loveratory.auth.dto.request.TokenRefreshRequest;
 import com.loveratory.auth.dto.request.UserLoginRequest;
 import com.loveratory.auth.dto.request.UserRegisterRequest;
@@ -22,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/v1/auth")
 @Tag(name = "認證管理", description = "使用者註冊、登入與 Token 管理")
 public class AuthController {
 
@@ -65,5 +66,12 @@ public class AuthController {
     public UserLoginResponse refreshToken(@Valid @RequestBody TokenRefreshRequest request) {
         log.info("刷新 Token");
         return authUseCase.refreshToken(request);
+    }
+
+    @Operation(summary = "Bootstrap system admin", description = "Create the first SYSTEM_ADMIN account when bootstrap is enabled")
+    @PostMapping("/bootstrap-admin")
+    public UserLoginResponse bootstrapAdmin(@Valid @RequestBody BootstrapAdminRequest request) {
+        log.info("Bootstrap system admin, email: {}", request.getEmail());
+        return authUseCase.bootstrapAdmin(request);
     }
 }

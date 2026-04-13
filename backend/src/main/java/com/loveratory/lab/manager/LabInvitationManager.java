@@ -46,6 +46,11 @@ public class LabInvitationManager {
                 .orElseThrow(() -> new BusinessException(ErrorCode.INVITATION_NOT_FOUND));
     }
 
+    public LabInvitationEntity findByIdOrThrow(@NonNull UUID invitationId) {
+        return labInvitationRepository.findById(invitationId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.INVITATION_NOT_FOUND));
+    }
+
     /**
      * 根據實驗室 ID 查詢邀請列表。
      *

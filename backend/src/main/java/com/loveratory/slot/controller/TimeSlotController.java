@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,6 +30,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
+@RequestMapping("/api/v1")
 @Tag(name = "時段管理", description = "時段建立、查詢、更新與取消")
 public class TimeSlotController {
 
@@ -42,7 +44,7 @@ public class TimeSlotController {
      * @return 時段回應列表
      */
     @Operation(summary = "建立時段", description = "為指定實驗建立一個或多個時段")
-    @PostMapping("/api/experiments/{experimentId}/slots")
+    @PostMapping("/experiments/{experimentId}/slots")
     public List<TimeSlotResponse> createSlots(
             @Parameter(description = "實驗 ID") @PathVariable UUID experimentId,
             @Valid @RequestBody List<SlotCreateRequest> requests) {
@@ -58,7 +60,7 @@ public class TimeSlotController {
      * @return 時段回應列表
      */
     @Operation(summary = "批次建立時段", description = "根據日期範圍、星期與時段區間自動產生多個時段")
-    @PostMapping("/api/experiments/{experimentId}/slots/batch")
+    @PostMapping("/experiments/{experimentId}/slots/batch")
     public List<TimeSlotResponse> createSlotsBatch(
             @Parameter(description = "實驗 ID") @PathVariable UUID experimentId,
             @Valid @RequestBody SlotBatchCreateRequest request) {
@@ -74,7 +76,7 @@ public class TimeSlotController {
      * @return 時段回應列表
      */
     @Operation(summary = "查詢時段列表", description = "列出指定實驗的所有時段")
-    @GetMapping("/api/experiments/{experimentId}/slots")
+    @GetMapping("/experiments/{experimentId}/slots")
     public List<TimeSlotResponse> findSlots(
             @Parameter(description = "實驗 ID") @PathVariable UUID experimentId) {
         log.info("查詢時段列表，experimentId: {}", experimentId);
@@ -89,7 +91,7 @@ public class TimeSlotController {
      * @return 時段回應
      */
     @Operation(summary = "更新時段", description = "更新指定時段的時間與容量")
-    @PutMapping("/api/slots/{slotId}")
+    @PutMapping("/slots/{slotId}")
     public TimeSlotResponse updateSlot(
             @Parameter(description = "時段 ID") @PathVariable UUID slotId,
             @Valid @RequestBody SlotUpdateRequest request) {
@@ -103,7 +105,7 @@ public class TimeSlotController {
      * @param slotId 時段 ID
      */
     @Operation(summary = "取消時段", description = "將指定時段狀態設為 CANCELLED")
-    @DeleteMapping("/api/slots/{slotId}")
+    @DeleteMapping("/slots/{slotId}")
     public void cancelSlot(
             @Parameter(description = "時段 ID") @PathVariable UUID slotId) {
         log.info("取消時段，slotId: {}", slotId);

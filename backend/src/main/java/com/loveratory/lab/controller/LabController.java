@@ -1,6 +1,7 @@
 package com.loveratory.lab.controller;
 
 import com.loveratory.lab.dto.request.LabCreateRequest;
+import com.loveratory.lab.dto.request.LabUpdateRequest;
 import com.loveratory.lab.dto.response.LabDetailResponse;
 import com.loveratory.lab.dto.response.LabSummaryResponse;
 import com.loveratory.lab.usecase.LabUseCase;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +29,7 @@ import java.util.UUID;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/labs")
+@RequestMapping("/api/v1/labs")
 @Tag(name = "實驗室管理", description = "實驗室建立、重新申請與查詢")
 public class LabController {
 
@@ -86,5 +88,21 @@ public class LabController {
             @Parameter(description = "實驗室 ID") @PathVariable UUID labId) {
         log.info("查詢實驗室詳情，labId: {}", labId);
         return labUseCase.findLabDetail(labId);
+    }
+
+    /**
+     * 更新實驗室資訊。
+     *
+     * @param labId 實驗室 ID
+     * @param request 更新實驗室請求
+     * @return 實驗室詳情回應
+     */
+    @Operation(summary = "更新實驗室資訊", description = "僅限實驗室管理員更新實驗室名稱與描述")
+    @PutMapping("/{labId}")
+    public LabDetailResponse updateLab(
+            @Parameter(description = "實驗室 ID") @PathVariable UUID labId,
+            @Valid @RequestBody LabUpdateRequest request) {
+        log.info("更新實驗室資訊，labId: {}, name: {}", labId, request.getName());
+        return labUseCase.updateLab(labId, request);
     }
 }

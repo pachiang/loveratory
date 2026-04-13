@@ -1,6 +1,7 @@
 package com.loveratory.auth.repository;
 
 import com.loveratory.auth.entity.UserEntity;
+import com.loveratory.auth.entity.UserRole;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
@@ -29,4 +30,6 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID>,
      * @return 是否已存在
      */
     boolean existsByEmail(String email);
+
+    boolean existsByRole(UserRole role);
 }

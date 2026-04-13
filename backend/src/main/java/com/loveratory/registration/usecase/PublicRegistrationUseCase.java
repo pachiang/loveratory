@@ -13,6 +13,7 @@ import com.loveratory.registration.dto.response.PublicTimeSlotResponse;
 import com.loveratory.registration.entity.RegistrationEntity;
 import com.loveratory.registration.entity.RegistrationStatus;
 import com.loveratory.registration.manager.RegistrationManager;
+import com.loveratory.notification.service.RegistrationNotificationService;
 import com.loveratory.slot.entity.TimeSlotEntity;
 import com.loveratory.slot.entity.TimeSlotStatus;
 import com.loveratory.slot.manager.TimeSlotManager;
@@ -38,6 +39,7 @@ public class PublicRegistrationUseCase {
     private final RegistrationManager registrationManager;
     private final TimeSlotManager timeSlotManager;
     private final ExperimentManager experimentManager;
+    private final RegistrationNotificationService registrationNotificationService;
 
     /**
      * 根據 slug 查詢公開實驗資訊。
@@ -55,8 +57,11 @@ public class PublicRegistrationUseCase {
             throw new BusinessException(ErrorCode.INVALID_EXPERIMENT_STATUS);
         }
 
+        ZonedDateTime now = ZonedDateTime.now();
         List<TimeSlotEntity> availableSlots = timeSlotManager.findAvailableByExperimentId(
-                experiment.getId());
+                experiment.getId()).stream()
+                .filter(slot -> slot.getStartTime().isAfter(now))
+                .toList();
 
         List<PublicTimeSlotResponse> slotResponses = availableSlots.stream()
                 .map(PublicTimeSlotResponse::fromEntity)
@@ -98,6 +103,10 @@ public class PublicRegistrationUseCase {
 
         if (slot.getStatus() != TimeSlotStatus.AVAILABLE) {
             throw new BusinessException(ErrorCode.INVALID_SLOT_STATUS);
+        }
+
+        if (!slot.getStartTime().isAfter(ZonedDateTime.now())) {
+            throw new BusinessException(ErrorCode.INVALID_SLOT_STATUS, "只能報名尚未開始的時段");
         }
 
         // 檢查重複報名
@@ -143,6 +152,7 @@ public class PublicRegistrationUseCase {
             slot.setStatus(TimeSlotStatus.FULL);
         }
         timeSlotManager.save(slot);
+        registrationNotificationService.scheduleNotifications(savedRegistration, slot, experiment);
 
         return PublicRegistrationResponse.of(savedRegistration, slot, experiment);
     }
@@ -190,11 +200,14 @@ public class PublicRegistrationUseCase {
         RegistrationEntity savedRegistration = registrationManager.save(registration);
 
         // 更新時段報名人數
-        slot.setCurrentCount(slot.getCurrentCount() - 1);
+        slot.setCurrentCount(Math.max(0, slot.getCurrentCount() - 1));
         if (slot.getStatus() == TimeSlotStatus.FULL && slot.getCurrentCount() < slot.getCapacity()) {
             slot.setStatus(TimeSlotStatus.AVAILABLE);
         }
         timeSlotManager.save(slot);
+        registrationNotificationService.disablePendingNotifications(
+                savedRegistration.getId(),
+                "Registration was cancelled by participant");
 
         return PublicRegistrationResponse.of(savedRegistration, slot, experiment);
     }

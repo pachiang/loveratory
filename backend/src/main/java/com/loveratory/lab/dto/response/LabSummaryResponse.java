@@ -56,4 +56,15 @@ public class LabSummaryResponse {
                 .createdAt(entity.getCreatedAt())
                 .build();
     }
+
+    public static LabSummaryResponse of(@NonNull LabEntity entity) {
+        return LabSummaryResponse.builder()
+                .labId(entity.getId())
+                .name(entity.getName())
+                .code(entity.getCode())
+                .status(entity.getStatus())
+                .myRole(null)
+                .createdAt(entity.getCreatedAt())
+                .build();
+    }
 }
