@@ -1,0 +1,86 @@
+<div class="auth-page">
+  <div class="auth-card card">
+    <h1 class="auth-title">Loveratory</h1>
+    <p class="auth-subtitle">建立帳號</p>
+
+    @if (errorMessage()) {
+      <div class="auth-error">{{ errorMessage() }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="name">姓名</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="請輸入姓名"
+          autocomplete="name"
+        />
+        @if (form.controls.name.touched && form.controls.name.errors) {
+          <div class="error-text">請輸入姓名</div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          placeholder="請輸入 Email"
+          autocomplete="email"
+        />
+        @if (form.controls.email.touched && form.controls.email.errors) {
+          <div class="error-text">請輸入有效的 Email</div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">密碼</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          placeholder="至少 8 個字元"
+          autocomplete="new-password"
+        />
+        @if (form.controls.password.touched && form.controls.password.errors) {
+          <div class="error-text">密碼至少需要 8 個字元</div>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">確認密碼</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          formControlName="confirmPassword"
+          placeholder="再次輸入密碼"
+          autocomplete="new-password"
+        />
+        @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['passwordMismatch']) {
+          <div class="error-text">密碼不一致</div>
+        }
+        @if (form.controls.confirmPassword.touched && form.controls.confirmPassword.errors?.['required'] && !form.controls.confirmPassword.errors?.['passwordMismatch']) {
+          <div class="error-text">請再次輸入密碼</div>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary auth-btn"
+        [disabled]="loading()"
+      >
+        @if (loading()) {
+          <span class="spinner"></span>
+        }
+        註冊
+      </button>
+    </form>
+
+    <p class="auth-link">
+      已有帳號？<a routerLink="/login">登入</a>
+    </p>
+  </div>
+</div>

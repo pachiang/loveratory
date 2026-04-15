@@ -1,0 +1,22 @@
+@use 'styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+.invite-form-card {
+  margin-bottom: 24px;
+  border-left: 3px solid $primary;
+
+  h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+}
+
+.invite-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}

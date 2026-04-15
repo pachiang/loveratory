@@ -1,0 +1,101 @@
+@use 'styles/variables' as *;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: $bg;
+}
+
+.public-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+.brand {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: $primary;
+  letter-spacing: 0.05em;
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 20px;
+}
+
+.detail-list {
+  border-top: 1px solid $divider;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid $divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $text;
+  text-align: right;
+}
+
+.cancel-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid $divider;
+}
+
+.btn-full {
+  width: 100%;
+  justify-content: center;
+  padding: 10px 24px;
+}
+
+.cancel-confirm {
+  text-align: center;
+
+  p {
+    font-size: 0.9rem;
+    color: $text-secondary;
+    margin-bottom: 16px;
+  }
+}
+
+.cancel-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.error-card {
+  text-align: center;
+  padding: 48px 24px;
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: $text;
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 0.9rem;
+  }
+}

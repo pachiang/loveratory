@@ -1,0 +1,75 @@
+@use 'styles/variables' as *;
+
+:host {
+  display: block;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.summary-cards {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.summary-card {
+  flex: 1;
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  padding: 18px 20px;
+  text-align: center;
+  box-shadow: $shadow-sm;
+
+  .summary-value {
+    display: block;
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .summary-label {
+    font-size: 0.82rem;
+    color: $text-secondary;
+  }
+
+  &.summary-confirmed {
+    border-left: 3px solid $success;
+
+    .summary-value {
+      color: darken($success, 10%);
+    }
+  }
+
+  &.summary-cancelled {
+    border-left: 3px solid $error;
+
+    .summary-value {
+      color: darken($error, 5%);
+    }
+  }
+
+  &.summary-noshow {
+    border-left: 3px solid $warning;
+
+    .summary-value {
+      color: darken($warning, 10%);
+    }
+  }
+}
+
+.status-select {
+  padding: 4px 8px;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  font-size: 0.82rem;
+  background: $surface;
+  color: $text;
+  cursor: pointer;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+  }
+}

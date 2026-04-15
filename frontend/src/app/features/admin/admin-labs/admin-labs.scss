@@ -1,0 +1,62 @@
+@use 'sass:color';
+@use 'styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  margin-left: 6px;
+  border-radius: 100px;
+  background: rgba($error, 0.15);
+  color: $error;
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.lab-name-cell {
+  font-weight: 500;
+  color: $text;
+}
+
+.lab-code-cell {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.85rem;
+  color: $text-hint;
+}
+
+.action-cell {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-approve {
+  background: $success;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background: color.adjust($success, $lightness: -8%);
+  }
+}
+
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 16px 0 4px;
+  border-top: 1px solid $divider;
+  margin-top: 8px;
+}
+
+.page-info {
+  font-size: 0.85rem;
+  color: $text-secondary;
+}

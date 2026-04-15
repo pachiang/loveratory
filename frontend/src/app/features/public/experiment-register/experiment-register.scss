@@ -1,0 +1,243 @@
+@use 'styles/variables' as *;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: $bg;
+}
+
+.public-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+.brand {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: $primary;
+  letter-spacing: 0.05em;
+  margin-bottom: 32px;
+}
+
+.card {
+  margin-bottom: 20px;
+}
+
+.experiment-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 8px;
+}
+
+.experiment-desc {
+  color: $text-secondary;
+  font-size: 0.92rem;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+.experiment-meta {
+  display: flex;
+  gap: 24px;
+  padding-top: 12px;
+  border-top: 1px solid $divider;
+}
+
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.meta-label {
+  font-size: 0.78rem;
+  color: $text-hint;
+  font-weight: 500;
+}
+
+.meta-value {
+  font-size: 0.92rem;
+  color: $text;
+  font-weight: 500;
+}
+
+.section-title {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+  color: $text;
+}
+
+.slot-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.slot-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  background: $surface;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  width: 100%;
+
+  &:hover:not(:disabled) {
+    border-color: $primary-light;
+    background: $surface-hover;
+  }
+
+  &.selected {
+    border-color: $primary;
+    background: rgba($primary, 0.06);
+    box-shadow: 0 0 0 2px rgba($primary, 0.15);
+  }
+
+  &.full {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.slot-time {
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: $text;
+}
+
+.slot-spots {
+  font-size: 0.82rem;
+  color: $text-secondary;
+}
+
+.form-section {
+  .form-actions {
+    margin-top: 24px;
+  }
+}
+
+.btn-lg {
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 1rem;
+  justify-content: center;
+}
+
+.required-mark {
+  color: $error;
+  margin-left: 2px;
+}
+
+.error-card {
+  text-align: center;
+  padding: 48px 24px;
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: $text;
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 0.9rem;
+  }
+}
+
+.success-card {
+  text-align: center;
+
+  .success-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba($success, 0.15);
+    color: $success;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: $text;
+  }
+
+  .success-subtitle {
+    color: $text-secondary;
+    font-size: 0.9rem;
+    margin-bottom: 24px;
+  }
+}
+
+.detail-list {
+  text-align: left;
+  border-top: 1px solid $divider;
+  padding-top: 16px;
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid $divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $text;
+}
+
+.cancel-link-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid $divider;
+
+  p {
+    font-size: 0.85rem;
+    color: $text-secondary;
+    margin-bottom: 8px;
+  }
+}
+
+.cancel-link {
+  display: inline-block;
+  padding: 8px 18px;
+  background: $surface-hover;
+  border: 1px solid $border;
+  border-radius: $radius-sm;
+  font-size: 0.85rem;
+  color: $primary;
+  font-weight: 500;
+  transition: all 0.2s;
+  word-break: break-all;
+
+  &:hover {
+    background: rgba($primary, 0.06);
+    border-color: $primary-light;
+  }
+}

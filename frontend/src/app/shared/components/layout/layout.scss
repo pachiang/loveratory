@@ -1,0 +1,104 @@
+@use 'styles/variables' as *;
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: $sidebar-width;
+  background: $bg-alt;
+  border-right: 1px solid $border-light;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  height: $header-height;
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: $primary-dark;
+  border-bottom: 1px solid $border-light;
+}
+
+.sidebar-nav {
+  padding: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 24px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  color: $text-secondary;
+  transition: all 0.15s;
+  text-decoration: none;
+
+  &:hover {
+    color: $text;
+    background: rgba($primary, 0.06);
+  }
+
+  &.active {
+    color: $primary-dark;
+    background: rgba($primary, 0.1);
+    font-weight: 600;
+  }
+}
+
+.nav-icon {
+  font-size: 1.1rem;
+  width: 24px;
+  text-align: center;
+}
+
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.header {
+  height: $header-height;
+  background: $surface;
+  border-bottom: 1px solid $border-light;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  flex-shrink: 0;
+}
+
+.header-title {
+  font-size: 1rem;
+  font-weight: 500;
+  color: $text-hint;
+}
+
+.header-user {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.user-name {
+  font-size: 0.88rem;
+  color: $text-secondary;
+  font-weight: 500;
+}
+
+.content {
+  flex: 1;
+  padding: 28px;
+  overflow-y: auto;
+}

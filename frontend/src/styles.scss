@@ -1,0 +1,129 @@
+@use 'styles/variables' as *;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 14px; }
+
+body {
+  font-family: $font-family;
+  color: $text;
+  background: $bg;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: $primary; text-decoration: none; &:hover { color: $primary-dark; } }
+
+button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+input, select, textarea { font-family: inherit; font-size: inherit; }
+
+.card {
+  background: $surface;
+  border: 1px solid $border-light;
+  border-radius: $radius;
+  padding: 24px;
+  box-shadow: $shadow-sm;
+}
+
+.page-header {
+  display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px;
+  h1 { font-size: 1.5rem; font-weight: 600; }
+  .subtitle { font-size: 0.9rem; color: $text-secondary; margin-top: 4px; }
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 18px; border-radius: $radius-sm;
+  font-size: 0.9rem; font-weight: 500;
+  transition: all 0.2s; border: 1px solid transparent;
+  &:disabled { opacity: 0.5; cursor: not-allowed; }
+  &-primary { background: $primary; color: white; &:hover:not(:disabled) { background: $primary-dark; } }
+  &-secondary { background: $surface; color: $text; border-color: $border; &:hover:not(:disabled) { background: $surface-hover; } }
+  &-danger { background: $surface; color: $error; border-color: $border; &:hover:not(:disabled) { background: #fdf5f5; border-color: $error; } }
+  &-sm { padding: 5px 12px; font-size: 0.82rem; }
+}
+
+.form-group {
+  margin-bottom: 18px;
+  label { display: block; font-size: 0.85rem; font-weight: 500; color: $text-secondary; margin-bottom: 6px; }
+  input, select, textarea {
+    width: 100%; padding: 9px 14px;
+    border: 1px solid $border; border-radius: $radius-sm;
+    background: $surface; color: $text; transition: border-color 0.2s;
+    &:focus { outline: none; border-color: $primary; box-shadow: 0 0 0 3px rgba($primary, 0.1); }
+    &.ng-touched.ng-invalid { border-color: $error; }
+  }
+  textarea { resize: vertical; min-height: 80px; }
+  .error-text { font-size: 0.78rem; color: $error; margin-top: 4px; }
+}
+
+.table-wrap {
+  overflow-x: auto;
+  table {
+    width: 100%; border-collapse: collapse;
+    th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid $divider; }
+    th { font-size: 0.78rem; font-weight: 600; color: $text-secondary; text-transform: uppercase; letter-spacing: 0.03em; }
+    tr:hover td { background: $surface-hover; }
+    tr:last-child td { border-bottom: none; }
+  }
+}
+
+.badge {
+  display: inline-block; padding: 3px 10px; border-radius: 100px; font-size: 0.75rem; font-weight: 500;
+  &-success { background: rgba($success, 0.15); color: darken($success, 15%); }
+  &-warning { background: rgba($warning, 0.15); color: darken($warning, 15%); }
+  &-error { background: rgba($error, 0.15); color: darken($error, 10%); }
+  &-info { background: rgba($info, 0.15); color: darken($info, 15%); }
+  &-neutral { background: rgba($text-hint, 0.15); color: $text-secondary; }
+}
+
+.tabs {
+  display: flex; border-bottom: 2px solid $divider; margin-bottom: 24px;
+  .tab {
+    padding: 10px 20px; font-size: 0.9rem; font-weight: 500;
+    color: $text-secondary; background: none;
+    border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.2s;
+    &:hover { color: $text; }
+    &.active { color: $primary; border-bottom-color: $primary; }
+  }
+}
+
+.dialog-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.3);
+  display: flex; align-items: center; justify-content: center; z-index: 1000;
+}
+.dialog {
+  background: $surface; border-radius: $radius; padding: 28px;
+  min-width: 380px; max-width: 520px; box-shadow: $shadow-lg;
+  h3 { font-size: 1.1rem; margin-bottom: 12px; }
+  p { color: $text-secondary; font-size: 0.9rem; margin-bottom: 20px; }
+  .dialog-actions { display: flex; justify-content: flex-end; gap: 10px; }
+}
+
+.empty-state {
+  text-align: center; padding: 48px 24px; color: $text-hint;
+  h3 { font-size: 1rem; color: $text-secondary; margin-bottom: 6px; }
+  p { font-size: 0.85rem; }
+}
+
+.toast {
+  position: fixed; bottom: 24px; right: 24px;
+  padding: 12px 20px; border-radius: $radius-sm; color: white;
+  font-size: 0.88rem; box-shadow: $shadow; z-index: 2000;
+  animation: slideUp 0.3s ease;
+  &-success { background: $success; }
+  &-error { background: $error; }
+}
+
+@keyframes slideUp { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.spinner {
+  display: inline-block; width: 20px; height: 20px;
+  border: 2px solid $border; border-top-color: $primary;
+  border-radius: 50%; animation: spin 0.6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-center { display: flex; align-items: center; justify-content: center; padding: 60px; }

@@ -1,0 +1,165 @@
+@use 'styles/variables' as *;
+
+:host {
+  display: block;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.project-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+
+  .title-area {
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+  }
+
+  .status-actions {
+    display: flex;
+    gap: 8px;
+  }
+}
+
+.meta-info {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 28px;
+  font-size: 0.85rem;
+  color: $text-secondary;
+
+  span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.edit-section {
+  margin-bottom: 28px;
+
+  .edit-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 12px;
+  }
+}
+
+.section {
+  margin-bottom: 32px;
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+    }
+  }
+}
+
+.investigator-add {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+
+  input {
+    flex: 1;
+    padding: 8px 14px;
+    border: 1px solid $border;
+    border-radius: $radius-sm;
+    font-size: 0.9rem;
+
+    &:focus {
+      outline: none;
+      border-color: $primary;
+    }
+  }
+}
+
+.investigator-list {
+  .investigator-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid $divider;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .investigator-info {
+      .investigator-name {
+        font-weight: 500;
+      }
+
+      .investigator-email {
+        font-size: 0.82rem;
+        color: $text-secondary;
+      }
+
+      .investigator-date {
+        font-size: 0.78rem;
+        color: $text-hint;
+      }
+    }
+  }
+}
+
+.experiment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .experiment-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    background: $surface;
+    border: 1px solid $border-light;
+    border-radius: $radius-sm;
+    cursor: pointer;
+    transition: all 0.2s;
+
+    &:hover {
+      border-color: $primary-light;
+      box-shadow: $shadow-sm;
+    }
+
+    .experiment-info {
+      .experiment-name {
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .experiment-meta {
+        font-size: 0.82rem;
+        color: $text-secondary;
+        margin-top: 2px;
+      }
+    }
+  }
+}
+
+.dialog-form {
+  .slug-preview {
+    font-size: 0.82rem;
+    color: $text-hint;
+    margin-top: 4px;
+  }
+}

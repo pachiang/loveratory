@@ -1,0 +1,128 @@
+@use 'sass:color';
+@use 'styles/variables' as *;
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: $bg;
+}
+
+.public-page {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 20px 60px;
+}
+
+.brand {
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: $primary;
+  letter-spacing: 0.05em;
+  margin-bottom: 32px;
+}
+
+.page-title {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 20px;
+}
+
+.detail-list {
+  border-top: 1px solid $divider;
+}
+
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid $divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.detail-label {
+  font-size: 0.85rem;
+  color: $text-secondary;
+}
+
+.detail-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $text;
+  text-align: right;
+}
+
+.status-message {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: $radius-sm;
+  text-align: center;
+
+  p {
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  &.info {
+    background: rgba($info, 0.1);
+    color: color.adjust($info, $lightness: -20%);
+  }
+
+  &.warning {
+    background: rgba($warning, 0.1);
+    color: color.adjust($warning, $lightness: -20%);
+  }
+}
+
+.action-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid $divider;
+}
+
+.action-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.btn-full {
+  width: 100%;
+  justify-content: center;
+  padding: 10px 24px;
+}
+
+.form-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: $text;
+  margin-bottom: 16px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.error-card {
+  text-align: center;
+  padding: 48px 24px;
+
+  h2 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: $text;
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 0.9rem;
+  }
+}

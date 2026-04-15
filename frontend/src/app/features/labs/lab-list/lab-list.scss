@@ -1,0 +1,56 @@
+@use 'styles/variables' as *;
+
+:host {
+  display: block;
+}
+
+.lab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.lab-card {
+  cursor: pointer;
+  transition: box-shadow 0.2s, transform 0.2s;
+
+  &:hover {
+    box-shadow: $shadow;
+    transform: translateY(-2px);
+  }
+}
+
+.lab-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.lab-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: $text;
+  line-height: 1.4;
+}
+
+.lab-code {
+  font-size: 0.82rem;
+  color: $text-hint;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  margin-bottom: 16px;
+}
+
+.lab-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid $divider;
+}
+
+.lab-date {
+  font-size: 0.78rem;
+  color: $text-hint;
+}
